@@ -1,7 +1,5 @@
 import express from 'express';
 import dotenv from 'dotenv';
-//severless http
-import serverless from 'serverless-http';
 import { connectDB } from './config/connect_DB.js';
 
 //import admin routes
@@ -19,15 +17,15 @@ import displayDataRouter from './routes/user/displayData.route.js';
 
 dotenv.config(); // You can access .env vars globally
 
+//Initialize the express app
 const app = express();
+
+//Connect to database
 connectDB();
 
 //Add middleware
 app.use(express.json()); //parse json
 app.use(express.urlencoded({extended: true})) //allow to handle url encoded data (form data)
-
-//server PORT
-const PORT = process.env.PORT;
 
 //ADMIN API
 app.use('/admin/electronic', electronicRouter)
@@ -42,10 +40,12 @@ app.use('/user/accountAction', accountActionRouter);
 app.use('/user/displayData', displayDataRouter)
 
 //Start server
-// app.listen(PORT, () => {
-//   //connect to database
-//   console.log(`Server start at http://localhost:${PORT}`);
-// })
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 3000;
+  app.listen(PORT, () => {
+    console.log(`Server running at http://localhost:${PORT}`);
+  });
+}
 
-//Start server
-export const handler = serverless(app);
+//Export the express app for vercel
+export default app;
