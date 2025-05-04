@@ -1,5 +1,5 @@
 import express from 'express';
-import { getAllCategories, getCommentsByElectronicID, getElectronicById } from '../../controllers/user/displayData.controller.js';
+import { getAllCategories, getCommentsByElectronicID, getElectronicById, searchElectronic } from '../../controllers/user/displayData.controller.js';
 
 const displayDataRouter = express.Router();
 
@@ -11,5 +11,8 @@ displayDataRouter.get('/getAllCate', getAllCategories)
 
 //display comments by electronicID
 displayDataRouter.get('/commentsByElectronic/:id', getCommentsByElectronicID);
+
+//search electronic: name and cate, sort by time, price, rating,...
+displayDataRouter.get('/search/electronic', searchElectronic)
 
 export default displayDataRouter;
