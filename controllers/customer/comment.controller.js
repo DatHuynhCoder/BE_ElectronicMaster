@@ -42,19 +42,25 @@ export const createComment = async (req, res) => {
     const reviewFiles = req.files['reviewImgs'] || [];
     const reviewImgs = [];
     for (const file of reviewFiles) {
-      const reviewImg = await cloudinary.uploader.upload(file.path, {
-        folder: "ElectronicMaster/ReviewImages",
-        transformation: [
-          { width: 800, height: 800, crop: "limit" },
-          { quality: "auto" },
-          { fetch_format: "auto" }
-        ]
+      const uploaded = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream({
+          folder: "ElectronicMaster/ReviewImages",
+          transformation: [
+            { width: 800, height: 800, crop: "limit" },
+            { quality: "auto" },
+            { fetch_format: "auto" }
+          ]
+        }, (err, result) => {
+          if (err) return reject(err);
+          resolve(result);
+        });
+
+        stream.end(file.buffer); // Upload từ buffer
       });
-      reviewImgs.push({ url: reviewImg.secure_url, public_id: reviewImg.public_id });
+
+      reviewImgs.push({ url: uploaded.secure_url, public_id: uploaded.public_id });
     }
 
-    //delete temp uploaded files
-    deleteTempFiles(reviewFiles);
 
     //create a new comment
     const newComment = await Review.create({
@@ -113,19 +119,25 @@ export const updateComment = async (req, res) => {
 
       //upload reviewImgs to cloudinary
       for (const file of reviewFiles) {
-        const reviewImg = await cloudinary.uploader.upload(file.path, {
-          folder: "ElectronicMaster/ReviewImages",
-          transformation: [
-            { width: 800, height: 800, crop: "limit" },
-            { quality: "auto" },
-            { fetch_format: "auto" }
-          ]
+        const uploaded = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({
+            folder: "ElectronicMaster/ReviewImages",
+            transformation: [
+              { width: 800, height: 800, crop: "limit" },
+              { quality: "auto" },
+              { fetch_format: "auto" }
+            ]
+          }, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+          });
+
+          stream.end(file.buffer);
         });
-        reviewImgs.push({ url: reviewImg.secure_url, public_id: reviewImg.public_id });
+
+        reviewImgs.push({ url: uploaded.secure_url, public_id: uploaded.public_id });
       }
 
-      //Delete temp uploaded files
-      deleteTempFiles(reviewFiles);
     }
 
     //Update comment
@@ -204,7 +216,7 @@ export const deleteComment = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json({success: true, message: "Delete comment and update electronic rating successfully"})
+    res.status(200).json({ success: true, message: "Delete comment and update electronic rating successfully" })
   } catch (error) {
     console.error("Error in delete comment: ", error.message);
     return res.status(500).json({ success: false, message: "Server error" });

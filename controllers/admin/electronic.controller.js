@@ -22,20 +22,26 @@ export const createElectronic = async (req, res) => {
     const electronicFiles = req.files['electronicImgs'] || [];
 
     const electronicImgs = [];
-    for (const file of electronicFiles) {
-      const electronicImg = await cloudinary.uploader.upload(file.path, {
-        folder: "ElectronicMaster/ElectronicImages",
-        transformation: [
-          { width: 800, height: 800, crop: "limit" },
-          { quality: "auto" },
-          { fetch_format: "auto" }
-        ]
-      });
-      electronicImgs.push({ url: electronicImg.secure_url, public_id: electronicImg.public_id });
-    }
 
-    //Delete temp uploaded files
-    deleteTempFiles(electronicFiles);
+    for (const file of electronicFiles) {
+      const uploaded = await new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream({
+          folder: "ElectronicMaster/ElectronicImages",
+          transformation: [
+            { width: 800, height: 800, crop: "limit" },
+            { quality: "auto" },
+            { fetch_format: "auto" }
+          ]
+        }, (err, result) => {
+          if (err) return reject(err);
+          resolve(result);
+        });
+
+        stream.end(file.buffer); // upload từ buffer
+      });
+
+      electronicImgs.push({ url: uploaded.secure_url, public_id: uploaded.public_id });
+    }
 
     //Create a new electronic
     const newElectronic = await Electronic.create({
@@ -85,27 +91,32 @@ export const updateElectronic = async (req, res) => {
 
     const electronicImgs = [];
 
-    if(electronicFiles.length > 0) {
+    if (electronicFiles.length > 0) {
       //Delete old electronic images from cloudinary
-      for(const img of electronic.electronicImgs){
+      for (const img of electronic.electronicImgs) {
         await cloudinary.uploader.destroy(img.public_id);
       }
 
       //Upload new electronic images to cloudinary
       for (const file of electronicFiles) {
-        const electronicImg = await cloudinary.uploader.upload(file.path, {
-          folder: "ElectronicMaster/ElectronicImages",
-          transformation: [
-            { width: 800, height: 800, crop: "limit" },
-            { quality: "auto" },
-            { fetch_format: "auto" }
-          ]
+        const uploaded = await new Promise((resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream({
+            folder: "ElectronicMaster/ElectronicImages",
+            transformation: [
+              { width: 800, height: 800, crop: "limit" },
+              { quality: "auto" },
+              { fetch_format: "auto" }
+            ]
+          }, (err, result) => {
+            if (err) return reject(err);
+            resolve(result);
+          });
+
+          stream.end(file.buffer);
         });
-        electronicImgs.push({ url: electronicImg.secure_url, public_id: electronicImg.public_id });
+
+        electronicImgs.push({ url: uploaded.secure_url, public_id: uploaded.public_id });
       }
-  
-      //Delete temp uploaded files
-      deleteTempFiles(electronicFiles);
 
     }
 
@@ -125,9 +136,9 @@ export const updateElectronic = async (req, res) => {
     }
 
     //Update electronic in database
-    const updatedElectronic = await Electronic.findByIdAndUpdate(electronicID, updateData, {new: true});
-    
-		res.status(200).json({ success: true, message: "Electronic updated successfully", data: updatedElectronic });
+    const updatedElectronic = await Electronic.findByIdAndUpdate(electronicID, updateData, { new: true });
+
+    res.status(200).json({ success: true, message: "Electronic updated successfully", data: updatedElectronic });
   } catch (error) {
     console.error("Error in update electronic: ", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
