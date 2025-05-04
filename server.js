@@ -1,5 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
+//severless http
+import serverless from 'serverless-http';
 import { connectDB } from './config/connect_DB.js';
 
 //import admin routes
@@ -18,6 +20,7 @@ import displayDataRouter from './routes/user/displayData.route.js';
 dotenv.config(); // You can access .env vars globally
 
 const app = express();
+connectDB();
 
 //Add middleware
 app.use(express.json()); //parse json
@@ -39,8 +42,10 @@ app.use('/user/accountAction', accountActionRouter);
 app.use('/user/displayData', displayDataRouter)
 
 //Start server
-app.listen(PORT, () => {
-  //connect to database
-  connectDB();
-  console.log(`Server start at http://localhost:${PORT}`);
-})
+// app.listen(PORT, () => {
+//   //connect to database
+//   console.log(`Server start at http://localhost:${PORT}`);
+// })
+
+//Start server
+export const handler = serverless(app);
