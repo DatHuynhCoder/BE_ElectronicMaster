@@ -2,7 +2,7 @@
   "name": "be_electronicmaster",
   "version": "1.0.0",
   "description": "Backend for Electronic Master application android",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "app": "nodemon server.js"

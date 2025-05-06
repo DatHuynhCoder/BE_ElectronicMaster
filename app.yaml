@@ -1,0 +1,4 @@
+runtime: nodejs20
+instance_class: F1
+health_check:
+  enable_health_check: False
