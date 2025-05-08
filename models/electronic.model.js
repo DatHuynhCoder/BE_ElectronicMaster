@@ -10,6 +10,7 @@ const ElectronicSchema = new mongoose.Schema({
   ],
   available: {type: Number, default: 0},
   mainCategory: {type: String},
+  slugCate: {type: String},
   categories: {type: [String], default: []},
   description: {type: String, default: ""},
   price: {type: Number, default: 0},

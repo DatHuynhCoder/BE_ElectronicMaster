@@ -1,5 +1,7 @@
 import { Electronic } from "../../models/electronic.model.js";
 import { Review } from "../../models/review.model.js"
+import { search } from "../../utils/search.js"
+import { pagination } from "../../utils/pagination.js";
 
 export const getElectronicById = async (req, res) => {
   try {
@@ -55,7 +57,65 @@ export const getCommentsByElectronicID = async (req, res) => {
 
 export const searchElectronic = async (req, res) => {
   try {
+    const {
+      keyword = "",
+      slugCates = "",       // dạng "slug1,slug2"
+      brandNames = "",      // dạng "Apple,Samsung"
+      sortBy = "publishDate", // quantitySold | rating | price | publishDate
+      sortOrder = "desc",     // asc | desc
+      page = 1,
+      limit = 10,
+    } = req.query;
 
+    const keywordSearch = search(keyword);
+
+    let query = {};
+
+    // Tìm theo tên sản phẩm (không dấu)
+    if (keywordSearch) {
+      query.name = { $regex: keywordSearch.regex };
+    }
+
+    // Lọc theo slugCate (cho phép nhiều)
+    if (slugCates) {
+      const slugList = slugCates.split(",").map((slug) => slug.trim());
+      query.slugCate = { $in: slugList };
+    }
+
+    // Lọc theo brandName (cho phép nhiều)
+    if (brandNames) {
+      const brandList = brandNames.split(",").map((b) => b.trim());
+      query.brandName = { $in: brandList };
+    }
+
+    // Tổng số kết quả để phân trang
+    const totalItems = await Electronic.countDocuments(query);
+
+    // Phân trang
+    const { paginatedQuery, ...pageData } = pagination(query, totalItems, {
+      page: parseInt(page),
+      limit: parseInt(limit),
+    });
+
+    // Sắp xếp
+    const sortField = ["quantitySold", "rating", "price", "publishDate"].includes(sortBy)
+      ? sortBy
+      : "publishDate";
+
+    const sortValue = sortOrder === "asc" ? 1 : -1;
+
+    // Truy vấn dữ liệu
+    const results = await Electronic.find(query)
+      .sort({ [sortField]: sortValue })
+      .skip(paginatedQuery.skip)
+      .limit(paginatedQuery.limit);
+
+    return res.status(200).json({
+      success: true,
+      data: results,
+      totalItems,
+      ...pageData,
+    });
   } catch (error) {
     console.error("Error get search electronic", error.message);
     return res.status(500).json({ success: false, message: "Server error" });

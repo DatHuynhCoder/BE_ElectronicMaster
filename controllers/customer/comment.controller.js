@@ -187,7 +187,7 @@ export const deleteComment = async (req, res) => {
     }
 
     //find the comment to delete
-    const comment = await Review.findOne({ _id: commentID, userID: userID });
+    const comment = await Review.findOne({ _id: commentID, electronicID: electronicID });
 
     //check if comment exist
     if (!comment) {

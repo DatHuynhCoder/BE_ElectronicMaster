@@ -14,7 +14,6 @@ import favoriteRouter from './routes/customer/favorite.route.js';
 import accountActionRouter from './routes/user/accountAction.route.js';
 import displayDataRouter from './routes/user/displayData.route.js';
 
-
 dotenv.config(); // You can access .env vars globally
 
 //Initialize the express app
@@ -46,6 +45,11 @@ if (process.env.NODE_ENV !== 'production') {
     console.log(`Server running at http://localhost:${PORT}`);
   });
 }
+
+//Mainpage
+app.get("/", (req, res) => {
+  res.send("<h1>Welcome to Electronic Master Server</h1>");
+});
 
 //Export the express app for vercel
 export default app;
