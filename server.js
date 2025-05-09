@@ -42,7 +42,7 @@ app.use('/user/displayData', displayDataRouter)
 if (process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT || 3000;
   app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at port: ${PORT}`);
   });
 }
 
@@ -51,5 +51,5 @@ app.get("/", (req, res) => {
   res.send("<h1>Welcome to Electronic Master Server</h1>");
 });
 
-//Export the express app for vercel
+//Export the express app for vercel (no longer needed)
 export default app;
