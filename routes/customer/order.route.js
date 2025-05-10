@@ -1,6 +1,6 @@
 import express from 'express';
 import { checkRole, protect } from '../../middleware/authMiddleware.js';
-import { cancelOrder, createOrder, getOrderByUserIDandStatus } from '../../controllers/customer/order.controller.js';
+import { cancelOrder, createOrder, getCart, getOrderByUserIDandStatus } from '../../controllers/customer/order.controller.js';
 
 const orderRouter = express.Router();
 
@@ -12,5 +12,8 @@ orderRouter.get('/', protect, checkRole('admin','customer'), getOrderByUserIDand
 
 //cancel an order
 orderRouter.patch('/:id', protect, checkRole('admin','customer'), cancelOrder);
+
+//Get Cart (order with status: pending, confirmed, processing, in transit)
+orderRouter.get('/cart', protect, checkRole('admin','customer'), getCart);
 
 export default orderRouter;

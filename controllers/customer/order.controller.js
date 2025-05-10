@@ -134,3 +134,25 @@ export const cancelOrder = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 }
+
+export const getCart = async (req,res) => {
+  try {
+    const userID = req.user.id;
+
+    //Find cart
+    const cart = await Order.find({
+      status: { $in: ['pending', 'confirmed', 'processing', 'in transit']},
+      userID: userID
+    })
+
+    //check if find any
+    if(cart.length === 0){
+      return res.status(201).json({success: true, data: cart, message: "Your cart is empty"});
+    }
+
+    res.status(200).json({success: true, data: cart});
+  } catch (error) {
+    console.error("Error in get cart: ", error.message);
+    return res.status(500), json({success: false, message: "Server error"});
+  }
+}
