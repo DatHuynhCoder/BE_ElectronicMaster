@@ -13,7 +13,4 @@ orderRouter.get('/', protect, checkRole('admin','customer'), getOrderByUserIDand
 //cancel an order
 orderRouter.patch('/:id', protect, checkRole('admin','customer'), cancelOrder);
 
-//Get Cart (order with status: pending, confirmed, processing, in transit)
-orderRouter.get('/cart', protect, checkRole('admin','customer'), getCart);
-
 export default orderRouter;
