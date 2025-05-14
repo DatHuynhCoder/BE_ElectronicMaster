@@ -67,34 +67,42 @@ export const searchElectronic = async (req, res) => {
       limit = 10,
     } = req.query;
 
-    const keywordSearch = search(keyword);
-
     let query = {};
 
     // Tìm theo tên sản phẩm (không dấu)
-    if (keywordSearch) {
-      query.name = { $regex: keywordSearch.regex };
+    if (keyword && keyword.trim() !== "") {
+      const keywordSearch = search(keyword);
+      if (keywordSearch && keywordSearch.regex) {
+        query.name = { $regex: keywordSearch.regex };
+      }
     }
 
     // Lọc theo slugCate (cho phép nhiều)
-    if (slugCates) {
-      const slugList = slugCates.split(",").map((slug) => slug.trim());
-      query.slugCate = { $in: slugList };
+    if (slugCates && slugCates.trim() !== "") {
+      const slugList = slugCates.split(",").map((slug) => slug.trim()).filter(Boolean);
+      if (slugList.length > 0) {
+        query.slugCate = { $in: slugList };
+      }
     }
 
     // Lọc theo brandName (cho phép nhiều)
-    if (brandNames) {
-      const brandList = brandNames.split(",").map((b) => b.trim());
-      query.brandName = { $in: brandList };
+    if (brandNames && brandNames.trim() !== "") {
+      const brandList = brandNames.split(",").map((b) => b.trim()).filter(Boolean);
+      if (brandList.length > 0) {
+        query.brandName = { $in: brandList };
+      }
     }
 
     // Tổng số kết quả để phân trang
     const totalItems = await Electronic.countDocuments(query);
 
     // Phân trang
+    const pageInt = parseInt(page) || 1;
+    const limitInt = parseInt(limit) || 10;
+    
     const { paginatedQuery, ...pageData } = pagination(query, totalItems, {
-      page: parseInt(page),
-      limit: parseInt(limit),
+      page: pageInt,
+      limit: limitInt,
     });
 
     // Sắp xếp
