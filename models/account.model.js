@@ -3,7 +3,7 @@ import bcrypt from 'bcrypt';
 
 const AccountSchema = new mongoose.Schema({
   username: {type: String, required: true},
-  name: {type: String},
+  name: {type: String, default:""},
   email: {type: String, required: true, unique: true},
   phone: {type: String, required:true, unique: true},
   password: {type: String, required: true},
@@ -14,8 +14,8 @@ const AccountSchema = new mongoose.Schema({
     default: 'Khác'
   },
   avatar: {
-    url: String,
-    public_id: String
+    url: {type: String, default: ""},
+    public_id: {type: String, default: ""}
   },
   role: {
     type: String,
