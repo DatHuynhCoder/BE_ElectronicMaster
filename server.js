@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { connectDB } from './config/connect_DB.js';
+import cors from 'cors';
 
 //import admin routes
 import electronicRouter from './routes/admin/electronic.route.js';
@@ -23,6 +24,7 @@ const app = express();
 connectDB();
 
 //Add middleware
+app.use(cors({}));
 app.use(express.json()); //parse json
 app.use(express.urlencoded({extended: true})) //allow to handle url encoded data (form data)
 
