@@ -6,6 +6,7 @@ import cors from 'cors';
 //import admin routes
 import electronicRouter from './routes/admin/electronic.route.js';
 import manageOrderRouter from './routes/admin/manageOrder.route.js';
+import manageUserRouter from './routes/admin/manageUser.route.js';
 //import customer routes
 import manageAccountRouter from './routes/customer/manageAccount.route.js';
 import commentRouter from './routes/customer/comment.route.js';
@@ -31,6 +32,7 @@ app.use(express.urlencoded({extended: true})) //allow to handle url encoded data
 //ADMIN API
 app.use('/admin/electronic', electronicRouter)
 app.use('/admin/manageOrder', manageOrderRouter);
+app.use('/admin/manageUser', manageUserRouter);
 //CUSTOMER API
 app.use('/customer/manageAccount', manageAccountRouter);
 app.use('/customer/comment', commentRouter);

@@ -1,6 +1,6 @@
 import express from 'express';
 import upload from '../../middleware/multer.js';
-import { createElectronic, deleteElectronic, updateElectronic } from '../../controllers/admin/electronic.controller.js';
+import { createElectronic, deleteElectronic, updateElectronic, getAllElectronics } from '../../controllers/admin/electronic.controller.js';
 import { protect, checkRole } from '../../middleware/authMiddleware.js';
 
 const electronicRouter = express.Router();
@@ -13,5 +13,8 @@ electronicRouter.patch('/:id', upload.fields([{ name: "electronicImgs", maxCount
 
 //delete electronic
 electronicRouter.delete('/:id', protect, checkRole('admin'), deleteElectronic)
+
+//get all electronics
+electronicRouter.get('/', protect, checkRole('admin'), getAllElectronics);
 
 export default electronicRouter;
