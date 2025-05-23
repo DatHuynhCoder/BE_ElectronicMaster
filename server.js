@@ -24,9 +24,9 @@ const app = express();
 connectDB();
 
 //Add middleware
-app.use(cors({}));
+app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json()); //parse json
-app.use(express.urlencoded({extended: true})) //allow to handle url encoded data (form data)
+app.use(express.urlencoded({ extended: true })) //allow to handle url encoded data (form data)
 
 //ADMIN API
 app.use('/admin/electronic', electronicRouter)
