@@ -46,28 +46,24 @@ export const updateAccount = async (req, res) => {
       }
 
       //Upload new avatar
-      const uploaded = await new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream({
-          folder: "ElectronicMaster/Avatar",
-          transformation: [
-            { width: 800, height: 800, crop: "limit" },
-            { quality: "auto" },
-            { fetch_format: "auto" }
-          ]
-        }, (err, result) => {
-          if (err) return reject(err);
-          resolve(result);
-        });
-      
-        stream.end(avatar.buffer); // Upload từ buffer thay vì path
+      const avatarCloudinary = await cloudinary.uploader.upload(avatar.path, {
+        folder: "ElectronicMaster/Avatar",
+        transformation: [
+          { width: 800, height: 800, crop: "limit" },
+          { quality: "auto" },
+          { fetch_format: "auto" }
+        ]
       });
-      
+
       updateAccount.avatar = {
-        url: uploaded.secure_url,
-        public_id: uploaded.public_id
+        url: avatarCloudinary.secure_url,
+        public_id: avatarCloudinary.public_id
       };
-      
+
     }
+
+    //delete temporary file
+    deleteTempFiles([req.file?.avatar]);
 
     //Parse addressList to array of objects
     if (updateAccount.addressList) {
