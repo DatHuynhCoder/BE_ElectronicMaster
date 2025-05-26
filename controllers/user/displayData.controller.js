@@ -2,18 +2,20 @@ import { Electronic } from "../../models/electronic.model.js";
 import { Review } from "../../models/review.model.js"
 import { search } from "../../utils/search.js"
 import { pagination } from "../../utils/pagination.js";
-
+import { removeHtmlTagsPreserveBreaks } from "../../utils/removeHTMLtags.js";
 export const getElectronicById = async (req, res) => {
   try {
     //get electronic id
     const electronicID = req.params.id;
     const electronic = await Electronic.findById(electronicID);
 
+
     //check if electronic exist
     if (!electronic) {
       return res.status(404).json({ success: false, message: `Electronic with id: ${electronicID} not found` });
     }
-
+    //Format description to remove HTML tags and preserve line breaks
+    electronic.description = removeHtmlTagsPreserveBreaks(electronic.description);
     res.status(200).json({ success: true, data: electronic })
   } catch (error) {
     console.error("Error in get electronic: ", error.message);
@@ -99,7 +101,7 @@ export const searchElectronic = async (req, res) => {
     // Phân trang
     const pageInt = parseInt(page) || 1;
     const limitInt = parseInt(limit) || 10;
-    
+
     const { paginatedQuery, ...pageData } = pagination(query, totalItems, {
       page: pageInt,
       limit: limitInt,
