@@ -9,7 +9,7 @@ const electronicRouter = express.Router();
 electronicRouter.post('/', upload.fields([{ name: "electronicImgs", maxCount: 4 }]), protect, checkRole('admin'), createElectronic)
 
 //update electronic
-electronicRouter.patch('/:id', upload.fields([{ name: "electronicImgs", maxCount: 4 }]), protect, checkRole('admin'), updateElectronic)
+electronicRouter.patch('/:id', upload.fields([{ name: "electronicImgsFiles", maxCount: 4 }]), protect, checkRole('admin'), updateElectronic)
 
 //delete electronic
 electronicRouter.delete('/:id', protect, checkRole('admin'), deleteElectronic)
