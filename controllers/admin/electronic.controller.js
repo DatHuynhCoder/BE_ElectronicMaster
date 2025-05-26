@@ -85,7 +85,7 @@ export const updateElectronic = async (req, res) => {
     const electronicFiles = req.files['electronicImgsFiles'] || [];
 
     // Get the newest electronicImgs
-    const electronicImgs = req.body.electronicImgs || [];
+    const electronicImgs = JSON.parse(req.body.electronicImgs) || [];
 
     if (electronicFiles.length > 0) {
 
