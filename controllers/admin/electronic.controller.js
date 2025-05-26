@@ -82,7 +82,7 @@ export const updateElectronic = async (req, res) => {
     //Parse categories because it's sent as a JSON string
     let categories = JSON.parse(req.body.categories);
 
-    const electronicFiles = req.files['electronicImgs'] || [];
+    const electronicFiles = req.files['electronicImgsFiles'] || [];
 
     // Get the newest electronicImgs
     const electronicImgs = req.body.electronicImgs || [];

@@ -7,6 +7,7 @@ import cors from 'cors';
 import electronicRouter from './routes/admin/electronic.route.js';
 import manageOrderRouter from './routes/admin/manageOrder.route.js';
 import manageUserRouter from './routes/admin/manageUser.route.js';
+import dashboardRouter from './routes/admin/dashboard.route.js';
 //import customer routes
 import manageAccountRouter from './routes/customer/manageAccount.route.js';
 import commentRouter from './routes/customer/comment.route.js';
@@ -33,6 +34,7 @@ app.use(express.urlencoded({ extended: true })) //allow to handle url encoded da
 app.use('/admin/electronic', electronicRouter)
 app.use('/admin/manageOrder', manageOrderRouter);
 app.use('/admin/manageUser', manageUserRouter);
+app.use('/admin/dashboard', dashboardRouter);
 //CUSTOMER API
 app.use('/customer/manageAccount', manageAccountRouter);
 app.use('/customer/comment', commentRouter);
