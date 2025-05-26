@@ -3,37 +3,51 @@ import { Order } from "../../models/order.model.js";
 
 export const getWebStatistics = async (req, res) => {
   try {
-    // Get the year
-    const {year} = req.query;
+    const { year } = req.query;
+    const targetYear = year ? parseInt(year) : new Date().getFullYear();
     const data = {};
-    //get number of electronics
+
+    // Get total number of electronics
     const totalElectronics = await Electronic.countDocuments({});
     data.totalElectronics = totalElectronics;
 
-    //revenue in day, month and year base on orders status dilivered
+    // Revenue and orders for today (based on delivered orders)
     const today = new Date();
-
-    //electronics delivered today, number of electronics delivered today
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-    const deliveredElectronicsToday = await Order.aggregate([
-      { $match: { status: "delivered", createdAt: { $gte: startOfDay } } },
-      { $group: { _id: null, totalRevenue: { $sum: "$totalPrice" } } }
-    ]);
+    const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate() + 1);
 
-    //add today data to data object
-    data.deliveredElectronicsToday = {
-      totalRevenue: deliveredElectronicsToday.length > 0 ? deliveredElectronicsToday[0].totalRevenue : 0,
-      totalElectronics: deliveredElectronicsToday.length > 0 ? deliveredElectronicsToday.length : 0
+    const deliveredOrdersToday = await Order.aggregate([
+      { 
+        $match: { 
+          status: "delivered", 
+          createdAt: { 
+            $gte: startOfDay,
+            $lt: endOfDay
+          } 
+        } 
+      },
+      { 
+        $group: { 
+          _id: null, 
+          totalRevenue: { $sum: "$totalPrice" },
+          totalOrders: { $sum: 1 }
+        } 
+      }
+    ]);
+    
+    data.deliveredOrdersToday = {
+      totalRevenue: deliveredOrdersToday.length > 0 ? deliveredOrdersToday[0].totalRevenue : 0,
+      totalOrders: deliveredOrdersToday.length > 0 ? deliveredOrdersToday[0].totalOrders : 0
     };
 
-    //electronics delivered each month, total revenue and number of electronics delivered each month
-    const deliveredElectronicsByMonth = await Order.aggregate([
+    // Revenue and orders for each month of the target year
+    const deliveredOrdersByMonth = await Order.aggregate([
       {
         $match: {
           status: "delivered",
           createdAt: {
-            $gte: new Date(today.getFullYear(), 0, 1),
-            $lt: new Date(today.getFullYear() + 1, 0, 1)
+            $gte: new Date(targetYear, 0, 1),
+            $lt: new Date(targetYear + 1, 0, 1)
           }
         }
       },
@@ -41,52 +55,60 @@ export const getWebStatistics = async (req, res) => {
         $group: {
           _id: { month: { $month: "$createdAt" } },
           totalRevenue: { $sum: "$totalPrice" },
-          totalElectronics: { $sum: 1 }
+          totalOrders: { $sum: 1 }
         }
       },
       {
-        $sort: { "_id.month": 1 } // Sắp xếp theo tháng
+        $sort: { "_id.month": 1 }
       }
     ]);
-    //add month data to data object
-    data.deliveredElectronicsByMonth = deliveredElectronicsByMonth.map(monthData => ({
-      month: monthData._id.month,
-      totalRevenue: monthData.totalRevenue,
-      totalElectronics: monthData.totalElectronics
-    }));
 
-    //electronics delivered each year, total revenue and number of electronics delivered each year
-    const deliveredElectronicsByYear = await Order.aggregate([
+    // Create array with all 12 months, filling missing months with 0 values
+    const monthlyData = [];
+    for (let month = 1; month <= 12; month++) {
+      const monthData = deliveredOrdersByMonth.find(item => item._id.month === month);
+      monthlyData.push({
+        month: month,
+        totalRevenue: monthData ? monthData.totalRevenue : 0,
+        totalOrders: monthData ? monthData.totalOrders : 0
+      });
+    }
+    
+    data.deliveredOrdersByMonth = monthlyData;
+
+    // Revenue and orders for the target year (total for the year)
+    const deliveredOrdersForYear = await Order.aggregate([
       {
         $match: {
           status: "delivered",
           createdAt: {
-            $gte: new Date(today.getFullYear() - 1, 0, 1),
-            $lt: new Date(today.getFullYear() + 1, 0, 1)
+            $gte: new Date(targetYear, 0, 1),
+            $lt: new Date(targetYear + 1, 0, 1)
           }
         }
       },
       {
         $group: {
-          _id: { year: { $year: "$createdAt" } },
+          _id: null,
           totalRevenue: { $sum: "$totalPrice" },
-          totalElectronics: { $sum: 1 }
+          totalOrders: { $sum: 1 }
         }
-      },
-      {
-        $sort: { "_id.year": 1 } // Sắp xếp theo năm
       }
     ]);
-    //add year data to data object
-    data.deliveredElectronicsByYear = deliveredElectronicsByYear.map(yearData => ({
-      year: yearData._id.year,
-      totalRevenue: yearData.totalRevenue,
-      totalElectronics: yearData.totalElectronics
-    }));
 
+    data.deliveredOrdersForYear = {
+      year: targetYear,
+      totalRevenue: deliveredOrdersForYear.length > 0 ? deliveredOrdersForYear[0].totalRevenue : 0,
+      totalOrders: deliveredOrdersForYear.length > 0 ? deliveredOrdersForYear[0].totalOrders : 0
+    };
 
     res.status(200).json({ success: true, data: data });
   } catch (error) {
-    return res.status(500).json({ success: false, message: "Error in getting web statistics" });
+    console.error("Error in getting web statistics:", error);
+    return res.status(500).json({ 
+      success: false, 
+      message: "Error in getting web statistics",
+      error: error.message 
+    });
   }
 }
