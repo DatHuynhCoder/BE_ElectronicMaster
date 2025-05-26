@@ -2,6 +2,7 @@ import cloudinary from "../../config/cloudinary.js";
 import { Electronic } from "../../models/electronic.model.js";
 import { deleteTempFiles } from "../../utils/deleteTempFiles.js";
 import { pagination } from "../../utils/pagination.js";
+import { removeHtmlTagsPreserveBreaks } from "../../utils/removeHTMLtags.js";
 
 export const createElectronic = async (req, res) => {
   try {
@@ -178,6 +179,10 @@ export const getAllElectronics = async (req, res) => {
       .skip(paginationElec.paginatedQuery.skip)
       .limit(paginationElec.paginatedQuery.limit)
 
+    //Format description to remove HTML tags and preserve line breaks
+    electronics.forEach(electronic => {
+      electronic.description = removeHtmlTagsPreserveBreaks(electronic.description);
+    });
 
     //return result
     res.status(200).json({
