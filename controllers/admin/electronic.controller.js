@@ -66,7 +66,7 @@ export const createElectronic = async (req, res) => {
 export const updateElectronic = async (req, res) => {
   try {
     //get electronicID
-    const electronicID = req.params.id
+    const electronicID = req.params.id;
 
     //find the electronic to update
     const electronic = await Electronic.findById(electronicID);
@@ -84,13 +84,10 @@ export const updateElectronic = async (req, res) => {
 
     const electronicFiles = req.files['electronicImgs'] || [];
 
-    const electronicImgs = [];
+    // Get the newest electronicImgs
+    const electronicImgs = req.body.electronicImgs || [];
 
     if (electronicFiles.length > 0) {
-      //Delete old electronic images from cloudinary
-      for (const img of electronic.electronicImgs) {
-        await cloudinary.uploader.destroy(img.public_id);
-      }
 
       //Upload new electronic images to cloudinary
       for (const file of electronicFiles) {
