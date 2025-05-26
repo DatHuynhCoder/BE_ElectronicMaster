@@ -201,3 +201,30 @@ export const getAllElectronics = async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error" });
   }
 }
+
+export const deleteElectronicImg = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { public_id } = req.body;
+
+    //check if electronic exist
+    const electronic = await Electronic.findById(id);
+
+    if (!electronic) {
+      return res.status(404).json({ success: false, message: "Electronic doesn't exist" });
+    }
+
+    //delete image on cloudinary
+    await cloudinary.uploader.destroy(public_id);
+
+    //delete image from electronicImgs array
+    electronic.electronicImgs = electronic.electronicImgs.filter(img => img.public_id !== public_id);
+
+    //save updated electronic
+    await electronic.save();
+    res.status(200).json({ success: true, message: "Image deleted successfully", data: electronic });
+
+  } catch (error) {
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+}

@@ -1,6 +1,6 @@
 import express from 'express';
 import upload from '../../middleware/multer.js';
-import { createElectronic, deleteElectronic, updateElectronic, getAllElectronics } from '../../controllers/admin/electronic.controller.js';
+import { createElectronic, deleteElectronic, updateElectronic, getAllElectronics, deleteElectronicImg } from '../../controllers/admin/electronic.controller.js';
 import { protect, checkRole } from '../../middleware/authMiddleware.js';
 
 const electronicRouter = express.Router();
@@ -16,5 +16,8 @@ electronicRouter.delete('/:id', protect, checkRole('admin'), deleteElectronic)
 
 //get all electronics
 electronicRouter.get('/', protect, checkRole('admin'), getAllElectronics);
+
+//delete single image from electronic
+electronicRouter.post('/delete-image/:id', protect, checkRole('admin'), deleteElectronicImg);
 
 export default electronicRouter;
