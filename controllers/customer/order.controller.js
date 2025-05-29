@@ -58,7 +58,7 @@ export const createOrder = async (req, res) => {
       totalPrice += (foundElectronic.discount ? foundElectronic.discount : foundElectronic.price) * qty;
       quantity += qty;
 
-      validateElectronics.push({electronicID, quantity: qty});
+      validateElectronics.push({ electronicID, quantity: qty });
     }
 
     const order = await Order.create({
@@ -72,7 +72,7 @@ export const createOrder = async (req, res) => {
       address: address
     })
 
-    return res.status(200).json({success: true, data: order});
+    return res.status(200).json({ success: true, message: "Your order has been created successfully !" });
   } catch (error) {
     console.error("Error in create order:", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -82,23 +82,23 @@ export const createOrder = async (req, res) => {
 export const getOrderByUserIDandStatus = async (req, res) => {
   try {
     const userID = req.user.id;
-    const {status} = req.query;
+    const { status } = req.query;
 
-    const filter = {userID: userID};
+    const filter = { userID: userID };
     //if has status we filter by status
-    if(status){
+    if (status) {
       filter.status = status;
     }
 
     const orders = await Order.find(filter)
       .populate("listElectronics.electronicID", "name price discount rating electronicImgs")
-      .sort({time: -1});
+      .sort({ time: -1 });
 
-    if(orders.length == 0) {
-      return res.status(200).json({success: true, message:"There no orders"})
+    if (orders.length == 0) {
+      return res.status(200).json({ success: true, message: "There no orders" })
     }
 
-    return res.status(200).json({success: true, data: orders});
+    return res.status(200).json({ success: true, data: orders });
   } catch (error) {
     console.error("Error in create reservation:", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -113,13 +113,13 @@ export const cancelOrder = async (req, res) => {
     const orderID = req.params.id;
 
     //get Order and check
-    const order = await Order.findOne({_id: orderID, userID: userID});
-    if(!order){
-      return res.status(404).json({success: false, message: "Order not found"});
+    const order = await Order.findOne({ _id: orderID, userID: userID });
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
     }
 
-    if(order.status != 'pending'){
-      return res.status(404).json({success: false, message: "You only can cancel pending order!"});
+    if (order.status != 'pending') {
+      return res.status(404).json({ success: false, message: "You only can cancel pending order!" });
     }
 
     //cancel Order
@@ -128,7 +128,7 @@ export const cancelOrder = async (req, res) => {
     //save order status
     await order.save();
 
-    return res.status(200).json({success: true, message: "Your Order has been canceled"});
+    return res.status(200).json({ success: true, message: "Your Order has been canceled" });
   } catch (error) {
     console.error("Error in create reservation:", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
