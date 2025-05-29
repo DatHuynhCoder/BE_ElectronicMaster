@@ -66,7 +66,7 @@ export const updateAccount = async (req, res) => {
     //Parse addressList to array of objects - Handle both string and array
     if (updateAccount.addressList) {
       let addressList;
-      
+
       // Check if addressList is already an array (sent as JSON) or a string
       if (typeof updateAccount.addressList === 'string') {
         try {
@@ -94,7 +94,7 @@ export const updateAccount = async (req, res) => {
           phone: address.phone
         }
       });
-      
+
     }
 
 
@@ -103,7 +103,7 @@ export const updateAccount = async (req, res) => {
     if (!account) {
       return res.status(404).json({ success: false, message: "account not found" });
     }
-    
+
     res.status(200).json({ success: true, data: account });
   } catch (error) {
     console.error("Error in update account info: ", error.message);
