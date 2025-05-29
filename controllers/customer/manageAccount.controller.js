@@ -31,7 +31,6 @@ export const updateAccount = async (req, res) => {
     delete updateAccount.email;
     delete updateAccount.password;
 
-
     //upload avatar
     const avatar = req.file;
     if (avatar) {
@@ -59,15 +58,30 @@ export const updateAccount = async (req, res) => {
         url: avatarCloudinary.secure_url,
         public_id: avatarCloudinary.public_id
       };
-
     }
 
     //delete temporary file
     deleteTempFiles([req.file?.avatar]);
 
-    //Parse addressList to array of objects
+    //Parse addressList to array of objects - Handle both string and array
     if (updateAccount.addressList) {
-      const addressList = JSON.parse(updateAccount.addressList);
+      let addressList;
+      
+      // Check if addressList is already an array (sent as JSON) or a string
+      if (typeof updateAccount.addressList === 'string') {
+        try {
+          addressList = JSON.parse(updateAccount.addressList);
+        } catch (error) {
+          console.error("Error parsing addressList JSON:", error);
+          return res.status(400).json({ success: false, message: "Invalid addressList format" });
+        }
+      } else if (Array.isArray(updateAccount.addressList)) {
+        // Already an array, use it directly
+        addressList = updateAccount.addressList;
+      } else {
+        return res.status(400).json({ success: false, message: "addressList must be an array or JSON string" });
+      }
+
       //Check if addressList is an array
       if (!Array.isArray(addressList)) {
         return res.status(400).json({ success: false, message: "addressList must be an array" });
@@ -80,13 +94,16 @@ export const updateAccount = async (req, res) => {
           phone: address.phone
         }
       });
+      
     }
+
 
     //update account info
     const account = await Account.findByIdAndUpdate(userID, updateAccount, { new: true });
     if (!account) {
       return res.status(404).json({ success: false, message: "account not found" });
     }
+    
     res.status(200).json({ success: true, data: account });
   } catch (error) {
     console.error("Error in update account info: ", error.message);
