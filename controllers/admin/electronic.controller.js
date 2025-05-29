@@ -68,6 +68,9 @@ export const updateElectronic = async (req, res) => {
     //get electronicID
     const electronicID = req.params.id;
 
+    //get update data from request body
+    const updateData = { ...req.body };
+
     //find the electronic to update
     const electronic = await Electronic.findById(electronicID);
 
@@ -77,15 +80,26 @@ export const updateElectronic = async (req, res) => {
     }
 
     //Parse specifications besause it's sent as a JSON string
-    let specifications = JSON.parse(req.body.specifications);
+    if(updateData.specifications) {
+      try {
+        updateData.specifications = JSON.parse(updateData.specifications);
+      } catch (err) {
+        return res.status(400).json({ success: false, message: "Invalid specifications format" });
+      }
+    }
 
     //Parse categories because it's sent as a JSON string
-    let categories = JSON.parse(req.body.categories);
+    if(updateData.categories) {
+      try {
+        updateData.categories = JSON.parse(updateData.categories);
+      } catch (err) {
+        return res.status(400).json({ success: false, message: "Invalid categories format" });
+      }
+    }
 
     const electronicFiles = req.files['electronicImgsFiles'] || [];
-
-    // Get the newest electronicImgs
-    const electronicImgs = JSON.parse(req.body.electronicImgs) || [];
+    
+    const electronicImgs = electronic.electronicImgs || [];
 
     if (electronicFiles.length > 0) {
 
@@ -101,25 +115,12 @@ export const updateElectronic = async (req, res) => {
         });
 
         electronicImgs.push({ url: electronicImg.secure_url, public_id: electronicImg.public_id });
+        updateData.electronicImgs = electronicImgs;
       }
     }
 
     //delete temp unloaded files
     deleteTempFiles(electronicFiles);
-
-    //Create updated electronic
-    const updateData = {
-      name: req.body.name,
-      electronicImgs: electronicImgs,
-      available: req.body.available,
-      mainCategory: req.body.mainCategory,
-      categories: categories,
-      description: req.body.description,
-      price: req.body.price,
-      discount: req.body.discount,
-      brandName: req.body.brandName,
-      specifications: specifications
-    }
 
     //Update electronic in database
     const updatedElectronic = await Electronic.findByIdAndUpdate(electronicID, updateData, { new: true });
