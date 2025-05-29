@@ -95,10 +95,8 @@ export const updateAccount = async (req, res) => {
         }
       });
 
-      console.log("Processed addressList:", updateAccount.addressList); // Debug log
     }
 
-    console.log("Update data being sent to database:", updateAccount); // Debug log
 
     //update account info
     const account = await Account.findByIdAndUpdate(userID, updateAccount, { new: true });
@@ -106,7 +104,6 @@ export const updateAccount = async (req, res) => {
       return res.status(404).json({ success: false, message: "account not found" });
     }
 
-    console.log("Updated account:", account); // Debug log
     res.status(200).json({ success: true, data: account });
   } catch (error) {
     console.error("Error in update account info: ", error.message);
