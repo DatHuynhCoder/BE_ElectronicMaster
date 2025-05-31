@@ -40,7 +40,7 @@ export const deleteFavortie = async (req, res) => {
   try {
     //get userID
     const userID = req.user.id;
-    const {electronicID} = req.body
+    const electronicID = req.params.electronicID;
 
     //find the electronic to decrease followers
     const electronic = await Electronic.findById(electronicID);
