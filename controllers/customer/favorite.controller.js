@@ -62,7 +62,7 @@ export const deleteFavortie = async (req, res) => {
       {new: true}
     );
 
-    res.status(200).json({success: true, data: favorite});
+    res.status(200).json({success: true, status: true});
   } catch (error) {
     console.error("Delete favorite error:", error.message);
     res.status(500).json({ success: false, message: "Server error" });

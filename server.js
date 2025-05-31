@@ -30,6 +30,13 @@ app.use(cors({ origin: 'http://localhost:5173', credentials: true }));
 app.use(express.json()); //parse json
 app.use(express.urlencoded({ extended: true })) //allow to handle url encoded data (form data)
 
+if (process.env.NODE_ENV !== 'development') {
+  app.use((req, res, next) => {
+    req.url = req.url.replace(/^\/[^\/]+/, '');
+    next();
+  });
+}
+
 //ADMIN API
 app.use('/admin/electronic', electronicRouter)
 app.use('/admin/manageOrder', manageOrderRouter);
