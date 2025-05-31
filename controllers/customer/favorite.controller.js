@@ -1,6 +1,7 @@
 import { Electronic } from '../../models/electronic.model.js';
 import { Favorite } from '../../models/favorite.model.js'
 import {Account} from '../../models/account.model.js'
+import { removeHtmlTagsPreserveBreaks } from '../../utils/removeHTMLtags.js';
 
 export const addFavorite = async (req, res) => {
   try {
@@ -75,6 +76,12 @@ export const getFavorite = async (req, res) => {
     if (!favorite) {
       return res.status(404).json({ success: false, message: "No favorites found" });
     }
+
+    //Remove html tags from electronic descriptions
+    favorite.electronicIDs = favorite.electronicIDs.map(electronic => {
+      electronic.description = removeHtmlTagsPreserveBreaks(electronic.description);
+      return electronic;
+    });
 
     res.status(200).json({ success: true, data: favorite.electronicIDs });
   } catch (error) {
