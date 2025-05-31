@@ -52,12 +52,10 @@ app.use('/user/accountAction', accountActionRouter);
 app.use('/user/displayData', displayDataRouter)
 
 //Start server
-if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => {
-    console.log(`Server running at port: ${PORT}`);
-  });
-}
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`Server running at port: ${PORT}`);
+});
 
 //Mainpage
 app.get("/", (req, res) => {
