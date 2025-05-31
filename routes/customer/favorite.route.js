@@ -8,7 +8,7 @@ const favoriteRouter = express.Router();
 favoriteRouter.post('', protect, checkRole('admin', 'customer'), addFavorite)
 
 //Remove from favorite
-favoriteRouter.delete('/', protect, checkRole('admin','customer'), deleteFavortie)
+favoriteRouter.delete('/:electronicID', protect, checkRole('admin','customer'), deleteFavortie)
 
 //Get all favorite
 favoriteRouter.get('/', protect, checkRole('admin','customer'), getFavorite)
