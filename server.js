@@ -16,6 +16,7 @@ import favoriteRouter from './routes/customer/favorite.route.js';
 //import user routes
 import accountActionRouter from './routes/user/accountAction.route.js';
 import displayDataRouter from './routes/user/displayData.route.js';
+import chatbotRouter from './routes/user/chatbot.route.js';
 
 dotenv.config(); // You can access .env vars globally
 
@@ -49,7 +50,8 @@ app.use('/customer/order', orderRouter);
 app.use('/customer/favorite', favoriteRouter);
 //USER API
 app.use('/user/accountAction', accountActionRouter);
-app.use('/user/displayData', displayDataRouter)
+app.use('/user/displayData', displayDataRouter);
+app.use('/user/chatbot', chatbotRouter);
 
 //Start server
 const PORT = process.env.PORT || 3000;
