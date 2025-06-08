@@ -105,6 +105,25 @@ export const getOrderByUserIDandStatus = async (req, res) => {
   }
 }
 
+export const getElectronicsByOrderId = async (req, res) => {
+  console.log("getElectronicsByOrderId called")
+  const { id } = req.query
+  const userID = req.user.id
+  console.log("order _id: ", id, ", userID: ", userID)
+  try {
+    const order = await Order.find({ _id: id, userID: userID }).populate("listElectronics.electronicID", "name price discount rating electronicImgs")
+    if (!order) {
+      return res.status(404).json({ success: false, electronics: [] });
+    }
+    else {
+      return res.status(200).json({ success: true, electronics: order[0].listElectronics });
+    }
+  } catch (error) {
+    console.error("Error: ", error.message);
+    return res.status(500).json({ success: false, electronics: [] });
+  }
+}
+
 export const cancelOrder = async (req, res) => {
   try {
     const userID = req.user.id;
@@ -130,7 +149,7 @@ export const cancelOrder = async (req, res) => {
 
     return res.status(200).json({ success: true, message: "Your Order has been canceled" });
   } catch (error) {
-    console.error("Error in create reservation:", error.message);
+    console.error("Error in cancel order: ", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
   }
 }
