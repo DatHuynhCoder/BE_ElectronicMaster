@@ -4,6 +4,7 @@ import cloudinary from "../../config/cloudinary.js";
 import { deleteTempFiles } from "../../utils/deleteTempFiles.js";
 
 export const createComment = async (req, res) => {
+  console.log("create comment called")
   try {
     //get userid
     const userID = req.user.id;
@@ -65,7 +66,7 @@ export const createComment = async (req, res) => {
       reviewImgs: reviewImgs
     })
 
-    res.status(200).json({ success: true, data: newComment });
+    return res.status(200).json({ success: true, message: "Comment created" });
   } catch (error) {
     console.error("Error in create comment: ", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -151,12 +152,7 @@ export const updateComment = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json({
-      success: true,
-      message: "Update comment and electronic rating successfully",
-      comment: updateComment,
-      electronic
-    });
+    return res.status(200).json({ success: true, message: "Update comment and electronic rating successfully" });
   } catch (error) {
     console.error("Error in update comment: ", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -211,5 +207,24 @@ export const deleteComment = async (req, res) => {
   } catch (error) {
     console.error("Error in delete comment: ", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+export const checkIsCommented = async (req, res) => {
+  const userID = req.user.id
+  const electronicID = req.query.electronicID
+  // console.log("check elec id: ", electronicID)
+  // console.log("check user id: ", userID)
+  try {
+    const review = await Review.find({ userID: userID, electronicID: electronicID })
+    console.log(review)
+    if (review.length > 0) {
+      return res.status(200).json({ success: true, message: "existed", review: review[0] })
+    }
+    else {
+      return res.status(200).json({ success: true, message: "not existed", review: {} })
+    }
+  } catch (err) {
+    return res.status(500).json({ success: false, message: err, review: {} })
   }
 }
