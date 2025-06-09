@@ -23,7 +23,7 @@ export const searchElectroicWithChatbot = async (req, res) => {
     }
 
     //Get electronics name and images from the database
-    const electronics = await Electronic.find({ _id: { $in: ids } }, '_id name electronicImgs.url');
+    const electronics = await Electronic.find({ _id: { $in: ids } }, '_id name price electronicImgs.url rating');
 
     if (!electronics || electronics.length === 0) {
       return res.status(404).json({ success: false, message: "No electronics found" });
@@ -85,7 +85,7 @@ export const searchSimilarImgs = async (req, res) => {
     }
 
     //Get electronics name and images from the database
-    const electronics = await Electronic.find({ _id: { $in: ids } }, '_id name electronicImgs.url');
+    const electronics = await Electronic.find({ _id: { $in: ids } }, '_id name price electronicImgs.url rating');
     if (!electronics || electronics.length === 0) {
       return res.status(404).json({ success: false, message: "No electronics found" });
     }
