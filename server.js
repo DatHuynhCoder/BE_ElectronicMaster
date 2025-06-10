@@ -56,38 +56,6 @@ app.use('/user/accountAction', accountActionRouter);
 app.use('/user/displayData', displayDataRouter);
 app.use('/user/chatbot', chatbotRouter);
 
-app.post("/slug-electronics", async (req, res) => {
-  try {
-    const electronics = await Electronic.find();
-
-    const updated = [];
-
-    for (const item of electronics) {
-      if (!item.name) continue;
-
-      const slug = normalizeString(item.name);
-
-      if (item.slugName !== slug) {
-        await Electronic.updateOne(
-          { _id: item._id },
-          { $set: { slugName: slug } }
-        );
-
-        updated.push({ id: item._id, name: item.name, slugName: slug });
-      }
-    }
-
-    res.status(200).json({
-      success: true,
-      updatedCount: updated.length,
-      updated,
-    });
-  } catch (err) {
-    console.error("❌ Error:", err.message);
-    res.status(500).json({ success: false, message: "Lỗi server" });
-  }
-});
-
 //Start server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
