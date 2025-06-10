@@ -1,6 +1,6 @@
 import express from 'express';
 import { checkRole, protect } from '../../middleware/authMiddleware.js';
-import { cancelOrder, createOrder, getOrderByUserIDandStatus, getElectronicsByOrderId } from '../../controllers/customer/order.controller.js';
+import { cancelOrder, receivedOrder, createOrder, getOrderByUserIDandStatus, getElectronicsByOrderId } from '../../controllers/customer/order.controller.js';
 
 const orderRouter = express.Router();
 
@@ -12,7 +12,8 @@ orderRouter.get('/', protect, checkRole('admin', 'customer'), getOrderByUserIDan
 
 // get electronics by orderid
 orderRouter.get('/electronics', protect, checkRole('admin', 'customer'), getElectronicsByOrderId);
-
+// mark an order as received
+orderRouter.patch('/:id/received', protect, checkRole('admin', 'customer'), receivedOrder);
 //cancel an order
 orderRouter.patch('/:id', protect, checkRole('admin', 'customer'), cancelOrder);
 
