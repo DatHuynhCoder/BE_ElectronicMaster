@@ -106,10 +106,8 @@ export const getOrderByUserIDandStatus = async (req, res) => {
 }
 
 export const getElectronicsByOrderId = async (req, res) => {
-  console.log("getElectronicsByOrderId called")
   const { id } = req.query
   const userID = req.user.id
-  console.log("order _id: ", id, ", userID: ", userID)
   try {
     const order = await Order.find({ _id: id, userID: userID }).populate("listElectronics.electronicID", "name price discount rating electronicImgs")
     if (!order) {
@@ -119,7 +117,6 @@ export const getElectronicsByOrderId = async (req, res) => {
       return res.status(200).json({ success: true, electronics: order[0].listElectronics });
     }
   } catch (error) {
-    console.error("Error: ", error.message);
     return res.status(500).json({ success: false, electronics: [] });
   }
 }
@@ -148,6 +145,34 @@ export const cancelOrder = async (req, res) => {
     await order.save();
 
     return res.status(200).json({ success: true, message: "Your Order has been canceled" });
+  } catch (error) {
+    console.error("Error in cancel order: ", error.message);
+    return res.status(500).json({ success: false, message: "Server error" });
+  }
+}
+
+export const receivedOrder = async (req, res) => {
+  try {
+    const userID = req.user.id;
+
+    //get orderID
+    const orderID = req.params.id;
+
+    //get Order and check
+    const order = await Order.findOne({ _id: orderID, userID: userID });
+    if (!order) {
+      return res.status(404).json({ success: false, message: "Order not found" });
+    }
+
+    if (order.status != 'in transit') {
+      return res.status(404).json({ success: false, message: "You only can mark in transit order as received!" });
+    }
+
+    order.status = 'delivered';
+
+    await order.save();
+
+    return res.status(200).json({ success: true, message: "Your Order has been marked as delivered" });
   } catch (error) {
     console.error("Error in cancel order: ", error.message);
     return res.status(500).json({ success: false, message: "Server error" });

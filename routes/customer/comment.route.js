@@ -12,7 +12,7 @@ commentRouter.post('/', upload.fields([{ name: "reviewImgs", maxCount: 3 }]), pr
 commentRouter.patch('/', upload.fields([{ name: "reviewImgs", maxCount: 3 }]), protect, checkRole('admin', 'customer'), updateComment);
 
 //Delete comment
-commentRouter.delete('/', protect, checkRole('admin', 'customer'), deleteComment);
+commentRouter.delete('/:electronicID/:commentID', protect, checkRole('admin', 'customer'), deleteComment);
 
 commentRouter.get('/check', protect, checkRole('admin', 'customer'), checkIsCommented);
 

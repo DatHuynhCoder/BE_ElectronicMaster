@@ -4,7 +4,6 @@ import cloudinary from "../../config/cloudinary.js";
 import { deleteTempFiles } from "../../utils/deleteTempFiles.js";
 
 export const createComment = async (req, res) => {
-  console.log("create comment called")
   try {
     //get userid
     const userID = req.user.id;
@@ -163,7 +162,7 @@ export const deleteComment = async (req, res) => {
   try {
     //get data
     const userID = req.user.id;
-    const { electronicID, commentID } = req.body;
+    const { electronicID, commentID } = req.params;
 
     // Check if required fields are provided
     if (!commentID || !electronicID || !userID) {
@@ -203,7 +202,7 @@ export const deleteComment = async (req, res) => {
       { new: true }
     );
 
-    res.status(200).json({ success: true, message: "Delete comment and update electronic rating successfully" })
+    return res.status(200).json({ success: true, message: "Delete comment and update electronic rating successfully" })
   } catch (error) {
     console.error("Error in delete comment: ", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
@@ -217,7 +216,6 @@ export const checkIsCommented = async (req, res) => {
   // console.log("check user id: ", userID)
   try {
     const review = await Review.find({ userID: userID, electronicID: electronicID })
-    console.log(review)
     if (review.length > 0) {
       return res.status(200).json({ success: true, message: "existed", review: review[0] })
     }
