@@ -1,6 +1,7 @@
 import cloudinary from "../../config/cloudinary.js";
 import { Electronic } from "../../models/electronic.model.js";
 import { deleteTempFiles } from "../../utils/deleteTempFiles.js";
+import { normalizeString } from "../../utils/normalizeString.js";
 import { pagination } from "../../utils/pagination.js";
 import { removeHtmlTagsPreserveBreaks } from "../../utils/removeHTMLtags.js";
 
@@ -51,6 +52,8 @@ export const createElectronic = async (req, res) => {
       price: req.body.price,
       discount: req.body.discount,
       brandName: req.body.brandName,
+      slugName: normalizeString(req.body.name),
+      slugCate: normalizeString(req.body.mainCategory),
       quantitySold: 0,
       rating: 0,
       specifications: specifications

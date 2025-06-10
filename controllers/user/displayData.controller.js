@@ -134,14 +134,14 @@ export const searchElectronic = async (req, res) => {
     res.status(200).json({
       success: true,
       electronics,
-      pagination: {
-        currentPage: paginationInfo.currentPage,
-        totalPages: paginationInfo.totalPages,
-        hasNextPage: paginationInfo.hasNextPage,
-        hasPreviousPage: paginationInfo.hasPreviousPage,
-        nextPage: paginationInfo.nextPage,
-        previousPage: paginationInfo.previousPage
-      }
+      totalItems: paginationInfo.totalItems,
+      totalPages: paginationInfo.totalPages,
+      currentPage: paginationInfo.currentPage,
+      totalPages: paginationInfo.totalPages,
+      hasNextPage: paginationInfo.hasNextPage,
+      hasPreviousPage: paginationInfo.hasPreviousPage,
+      nextPage: paginationInfo.nextPage,
+      previousPage: paginationInfo.previousPage
     });
 
   } catch (error) {
