@@ -3,9 +3,6 @@ import dotenv from 'dotenv';
 import { connectDB } from './config/connect_DB.js';
 import cors from 'cors';
 
-import { Electronic } from './models/electronic.model.js';
-import { normalizeString } from './utils/normalizeString.js';
-
 //import admin routes
 import electronicRouter from './routes/admin/electronic.route.js';
 import manageOrderRouter from './routes/admin/manageOrder.route.js';
