@@ -1,26 +1,9 @@
 export const normalizeString = (str) => {
-  const accents = {
-    a: /[àáâãäåāă]/g,
-    e: /[èéêëēĕ]/g,
-    i: /[ìíîïīĭ]/g,
-    o: /[òóôõöōŏ]/g,
-    u: /[ùúûüūŭ]/g,
-    y: /[ýÿ]/g,
-    d: /đ/g,
-    A: /[ÀÁÂÃÄÅĀĂ]/g,
-    E: /[ÈÉÊËĒĔ]/g,
-    I: /[ÌÍÎÏĪĬ]/g,
-    O: /[ÒÓÔÕÖŌŎ]/g,
-    U: /[ÙÚÛÜŪŬ]/g,
-    Y: /[ÝŸ]/g,
-    D: /Đ/g,
-  };
-
-  //Nomalize string to lowercase
-  let normalizedStr = str.trim().toLowerCase();
-  Object.keys(accents).forEach((key) => {
-    normalizedStr = normalizedStr.replace(accents[key], key);
-  });
-
-  return normalizedStr;
-}
+  return str
+    .normalize('NFD')                  // Chuyển ký tự có dấu thành ký tự base + dấu
+    .replace(/[\u0300-\u036f]/g, '')   // Xóa toàn bộ dấu (diacritics)
+    .replace(/đ/g, 'd')                // Xử lý riêng cho đ
+    .replace(/Đ/g, 'D')
+    .toLowerCase()                     // Chuyển về chữ thường
+    .trim();                           // Xóa khoảng trắng đầu cuối
+};

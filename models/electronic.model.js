@@ -8,6 +8,7 @@ const ElectronicSchema = new mongoose.Schema({
       public_id: String,
     }
   ],
+  slugName: {type: String},
   available: {type: Number, default: 0},
   mainCategory: {type: String},
   slugCate: {type: String},
