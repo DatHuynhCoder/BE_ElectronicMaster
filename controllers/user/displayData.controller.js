@@ -60,26 +60,26 @@ export const getCommentsByElectronicID = async (req, res) => {
 export const searchElectronic = async (req, res) => {
   try {
     const {
-      keyword,
-      slugCates,
-      brandNames,
-      sort = 'publishDate', // Default sort by publishDate
+      keyword = "",
+      slugCates = "",       // dạng "slug1,slug2"
+      brandNames = "",      // dạng "Apple,Samsung"
+      sortBy = "publishDate", // quantitySold | rating | price | publishDate
+      sortOrder = "desc",     // asc | desc
       page = 1,
-      limit = 10
+      limit = 10,
     } = req.query;
 
-    // Build search query
-    const query = {};
+    let query = {};
 
-    // Handle keyword search if provided
-    if (keyword) {
-      const searchOptions = search(keyword);
-      if (searchOptions) {
-        query.slugName = { $regex: searchOptions.regex };
+    // Tìm theo tên sản phẩm (không dấu)
+    if (keyword && keyword.trim() !== "") {
+      const keywordSearch = search(keyword);
+      if (keywordSearch && keywordSearch.regex) {
+        query.slugName = { $regex: keywordSearch.regex };
       }
     }
 
-    // Handle category filter if provided
+    // Lọc theo slugCate (cho phép nhiều)
     if (slugCates && slugCates.trim() !== "") {
       const slugList = slugCates.split(",").map((slug) => slug.trim()).filter(Boolean);
       if (slugList.length > 0) {
@@ -87,7 +87,7 @@ export const searchElectronic = async (req, res) => {
       }
     }
 
-    // Handle brand filter if provided
+    // Lọc theo brandName (cho phép nhiều)
     if (brandNames && brandNames.trim() !== "") {
       const brandList = brandNames.split(",").map((b) => b.trim()).filter(Boolean);
       if (brandList.length > 0) {
@@ -95,61 +95,39 @@ export const searchElectronic = async (req, res) => {
       }
     }
 
-    // Handle sorting
-    let sortCriteria = {};
-
-    // Parse sort parameter (can be comma-separated for multiple sort criteria)
-    const sortFields = sort.split(',');
-
-    // Build sort object
-    sortFields.forEach(field => {
-      const [fieldName, order] = field.split(':');
-
-      // Only allow valid fields
-      if (['quantitySold', 'price', 'rating', 'publishDate'].includes(fieldName)) {
-        sortCriteria[fieldName] = order === 'asc' ? 1 : -1; // Default to desc if not specified
-      }
-    });
-
-    // If no valid sort criteria were provided, default to publishDate descending
-    if (Object.keys(sortCriteria).length === 0) {
-      sortCriteria = { publishDate: -1 };
-    }
-
-    // Apply pagination
+    // Tổng số kết quả để phân trang
     const totalItems = await Electronic.countDocuments(query);
-    const paginationInfo = pagination(
-      { sort: sortCriteria },
-      totalItems,
-      { page, limit }
-    );
 
-    // Execute the query with pagination
-    const electronics = await Electronic.find(query)
-      .sort(paginationInfo.paginatedQuery.sort)
-      .skip(paginationInfo.paginatedQuery.skip)
-      .limit(paginationInfo.paginatedQuery.limit);
+    // Phân trang
+    const pageInt = parseInt(page) || 1;
+    const limitInt = parseInt(limit) || 10;
 
-    // Return the results
-    res.status(200).json({
+    const { paginatedQuery, ...pageData } = pagination(query, totalItems, {
+      page: pageInt,
+      limit: limitInt,
+    });
+
+    // Sắp xếp
+    const sortField = ["quantitySold", "rating", "price", "publishDate"].includes(sortBy)
+      ? sortBy
+      : "publishDate";
+
+    const sortValue = sortOrder === "asc" ? 1 : -1;
+
+    // Truy vấn dữ liệu
+    const results = await Electronic.find(query)
+      .sort({ [sortField]: sortValue })
+      .skip(paginatedQuery.skip)
+      .limit(paginatedQuery.limit);
+
+    return res.status(200).json({
       success: true,
-      electronics,
-      totalItems: paginationInfo.totalItems,
-      totalPages: paginationInfo.totalPages,
-      currentPage: paginationInfo.currentPage,
-      totalPages: paginationInfo.totalPages,
-      hasNextPage: paginationInfo.hasNextPage,
-      hasPreviousPage: paginationInfo.hasPreviousPage,
-      nextPage: paginationInfo.nextPage,
-      previousPage: paginationInfo.previousPage
+      data: results,
+      totalItems,
+      ...pageData,
     });
-
   } catch (error) {
-    console.error('Error searching electronics:', error);
-    res.status(500).json({
-      success: false,
-      message: 'Failed to search electronics',
-      error: error.message
-    });
+    console.error("Error get search electronic", error.message);
+    return res.status(500).json({ success: false, message: "Server error" });
   }
 }
