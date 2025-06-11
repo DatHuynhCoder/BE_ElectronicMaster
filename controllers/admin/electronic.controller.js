@@ -72,7 +72,11 @@ export const updateElectronic = async (req, res) => {
     const electronicID = req.params.id;
 
     //get update data from request body
-    const updateData = { ...req.body };
+    const updateData = {
+      ...req.body,
+      slugName: normalizeString(req.body.name),
+      slugCate: normalizeString(req.body.mainCategory),
+    };
 
     //find the electronic to update
     const electronic = await Electronic.findById(electronicID);
@@ -83,7 +87,7 @@ export const updateElectronic = async (req, res) => {
     }
 
     //Parse specifications besause it's sent as a JSON string
-    if(updateData.specifications) {
+    if (updateData.specifications) {
       try {
         updateData.specifications = JSON.parse(updateData.specifications);
       } catch (err) {
@@ -92,7 +96,7 @@ export const updateElectronic = async (req, res) => {
     }
 
     //Parse categories because it's sent as a JSON string
-    if(updateData.categories) {
+    if (updateData.categories) {
       try {
         updateData.categories = JSON.parse(updateData.categories);
       } catch (err) {
@@ -101,7 +105,7 @@ export const updateElectronic = async (req, res) => {
     }
 
     const electronicFiles = req.files['electronicImgsFiles'] || [];
-    
+
     const electronicImgs = electronic.electronicImgs || [];
 
     if (electronicFiles.length > 0) {
@@ -128,7 +132,7 @@ export const updateElectronic = async (req, res) => {
     //Update electronic in database
     const updatedElectronic = await Electronic.findByIdAndUpdate(electronicID, updateData, { new: true });
 
-    res.status(200).json({ success: true, message: "Electronic updated successfully", data: updatedElectronic });
+    return res.status(200).json({ success: true, message: "Electronic updated successfully", data: updatedElectronic });
   } catch (error) {
     console.error("Error in update electronic: ", error.message);
     return res.status(500).json({ success: false, message: "Server error" });
