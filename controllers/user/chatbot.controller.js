@@ -38,39 +38,34 @@ export const searchElectroicWithChatbot = async (req, res) => {
 
 export const searchSimilarImgs = async (req, res) => {
   let filePath = null;
-  
+
   try {
     const { top_k = 5 } = req.body;
     const file = req.file;
-    
+
     if (!file) {
       return res.status(400).json({ success: false, message: "Image file is required" });
     }
 
     // File is saved to disk by multer, get the path
     filePath = file.path;
-    
-    console.log('File info:', {
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size,
-      path: filePath
-    });
 
-    // Read the file from disk
-    const fileBuffer = fs.readFileSync(filePath);
+    const optimizedBuffer = await sharp(filePath)
+      .resize({ width: 800 }) 
+      .jpeg({ quality: 70 }) 
+      .toBuffer();
 
     // Create FormData and append the file buffer
     const formData = new FormData();
-    formData.append('file', fileBuffer, {
+    formData.append('file', optimizedBuffer, {
       filename: file.originalname,
       contentType: file.mimetype
     });
-    
+
     // Send the image to the chatbot for similarity search
     const chatbotResponse = await axios.post(
-      `${process.env.CHATBOT_HOST}/search_image?top_k=${top_k}`, 
-      formData, 
+      `${process.env.CHATBOT_HOST}/search_image?top_k=${top_k}`,
+      formData,
       {
         headers: {
           ...formData.getHeaders(),
@@ -89,11 +84,11 @@ export const searchSimilarImgs = async (req, res) => {
     if (!electronics || electronics.length === 0) {
       return res.status(404).json({ success: false, message: "No electronics found" });
     }
-    
+
     res.status(200).json({ success: true, data: electronics });
   } catch (error) {
-    return res.status(500).json({ 
-      success: false, 
+    return res.status(500).json({
+      success: false,
       message: "Server error",
     });
   } finally {
