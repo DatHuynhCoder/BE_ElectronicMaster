@@ -3,6 +3,7 @@ import { Electronic } from "../../models/electronic.model.js";
 import FormData from "form-data";
 import fs from "fs";
 import path from "path";
+import sharp from "sharp";
 
 export const searchElectroicWithChatbot = async (req, res) => {
   try {
